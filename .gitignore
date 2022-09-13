@@ -13,3 +13,8 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+
+# IDEs
+classics/*/.idea/
+classics/*/go.mod
+classics/*/go.sum
