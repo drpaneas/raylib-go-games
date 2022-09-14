@@ -542,33 +542,6 @@ func CheckCompletion(lineToDelete *bool) {
 	}
 }
 
-func ResolveFallingMovement(detection, pieceActive *bool) {
-	// If we finished moving this piece, we stop it
-	if *detection {
-		for j := gridSizeY - 2; j >= 0; j-- {
-			for i := 1; i < gridSizeX-1; i++ {
-				//
-				if grid[i][j] == MOVING {
-					grid[i][j] = FULL
-					*detection = false
-					*pieceActive = false
-				}
-			}
-		}
-	} else { // We move down the piece
-		for j := gridSizeY - 2; j >= 0; j-- {
-			for i := 1; i < gridSizeX-1; i++ {
-				if grid[i][j] == MOVING {
-					grid[i][j+1] = MOVING
-					grid[i][j] = EMPTY
-				}
-			}
-		}
-
-		piecePosY++
-	}
-}
-
 func DeleteCompleteLines() int {
 	var deletedLines int
 
