@@ -15,8 +15,9 @@ package main
 
 import (
 	"fmt"
-	"golang.org/x/exp/constraints"
 	"image/color"
+
+	"golang.org/x/exp/constraints"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
@@ -25,14 +26,18 @@ import (
 // Some Defines
 // ----------------------------------------------------------------------------------
 const (
-	squareSize                        = 20 // Size of the squares that compose the pieces
-	gridSizeX                         = 12 // 10 + 2 (left and right walls)
-	gridSizeY                         = 20 // 18 + 2 (top and bottom walls)
-	framesToWaitBeforeLateralMovement = 10 // Left and right movement speed
-	speedTurn                         = 12
-	framesToWaitBeforeMoveDown        = 30 // The frames that have to pass before the piece falls down one square. The higher the number, the slower the piece falls
-	fastFallAwaitCounter              = 30
-	timeToFade                        = 33
+	squareSize           = 20 // Size of the squares that compose the pieces
+	gridSizeX            = 12 // 10 + 2 (left and right walls)
+	gridSizeY            = 20 // 18 + 2 (top and bottom walls)
+	speedTurn            = 12
+	fastFallAwaitCounter = 30
+	timeToFade           = 33
+
+	// Deceleration: the higher the value, the slower the piece moves
+	// It is the number of frames that must pass before the piece moves down one cell
+	// NOTE: The higher the value, the slower the piece moves (60 frames --> 1 second)
+	framesToWaitBeforeMoveDown        = 30
+	framesToWaitBeforeLateralMovement = 10
 )
 
 //----------------------------------------------------------------------------------
@@ -145,11 +150,12 @@ func reset() {
 	//
 	//  The grid is composed of 5 types of squares:
 	//
-	//    1. EMPTY: empty square
+	//    1. EMPTY : empty square
 	//    2. MOVING: square that is part of the moving tetromino
-	//    3. FULL: square that is part of a tetromino that has reached the bottom of the grid
-	//    4. BLOCK: square that is part of the wall perimeter of the grid
-	//    5. FADING: square that is part of a tetromino that has reached the bottom of the grid, and it is going to be deleted
+	//    3. FULL  : square that is part of a tetromino that has reached the bottom of the grid
+	//    4. BLOCK : square that is part of the wall perimeter of the grid
+	//    5. FADING: square that is part of a tetromino that has reached the bottom of the grid,
+	//   			 and it is going to be deleted
 	//
 	// Initialize the main gaming grid area with empty squares and surrounding walls
 	for i := 0; i < gridSizeX; i++ {
@@ -157,6 +163,7 @@ func reset() {
 			isBottomWall := j == gridSizeY-1
 			isLeftWall := i == 0
 			isRightWall := i == gridSizeX-1
+
 			if isBottomWall || isLeftWall || isRightWall {
 				grid[i][j] = BLOCK // Surrounding Walls
 			} else {
@@ -179,29 +186,22 @@ func reset() {
 func UpdateGame() {
 	// 1. Check if the game is over (if the player has lost)
 	if !isGameover {
-
 		// 2. If the game is _not_ over, then check if the game is paused,
 		//    and if so, wait for the user to press P to continue
 		if rl.IsKeyPressed(rl.KeyP) {
 			isPaused = !isPaused
 		}
-
 		// 3. If the game is _not_ paused, then proceed to the next step.
 		if !isPaused {
-
 			// 4. Check if a line has been completed, and if so, we have to delete it.
 			if !hasLineToDelete {
-
 				// 5. If there is no line to delete, then check if the current piece has reached the bottom of the grid.
 				if !isPieceFalling {
-
 					// 5a.1 A piece has reached the bottom of the grid, so we have to create a new one.
 					isPieceFalling = CreatePiece()
-
 					// 5a.2 In case the user had previously pressed the down key, we have to reset the fastFallMoveCounter
 					//     to avoid the piece to fall down too fast.
 					fastFallMoveCounter = 0
-
 				} else {
 					// 5b.1 If the piece has not reached the bottom of the grid, then check for user input.
 
@@ -237,7 +237,6 @@ func UpdateGame() {
 						} else {
 							moveDown()
 						}
-
 						// 5b.5.2 Check if the player has completed a line, and if so, mark it (FADING) to be deleted in the next frame
 						CheckCompletion(&hasLineToDelete)
 					}
@@ -267,7 +266,6 @@ func UpdateGame() {
 						}
 					}
 				}
-
 			} else {
 				// Animation when deleting score
 				fadeLineCounter++
@@ -334,8 +332,10 @@ func DrawGame() {
 	if !isGameover {
 		// Draw gameplay area
 		offset := rl.Vector2{
+			// X Offset the grid to the center of the screen
 			X: screenWidth/2 - (gridSizeX * squareSize),
-			Y: screenHeight/2 - ((gridSizeY - 1) * squareSize / 2) + squareSize*2, // places the bottom of the grid to the bottom of the screen
+			// Y Offset the grid to the bottom of the screen
+			Y: screenHeight/2 - ((gridSizeY - 1) * squareSize / 2) + squareSize*2,
 		}
 
 		offset.X -= 50 // offset to the left
@@ -427,6 +427,7 @@ func CreatePiece() bool {
 	// If the game is starting, and you are going to create the first piece, we create an extra one
 	if isFirst {
 		getRandomPiece()
+
 		isFirst = false
 	}
 
@@ -521,6 +522,7 @@ func CheckCompletion(lineToDelete *bool) {
 
 	for j := gridSizeY - 2; j >= 0; j-- {
 		calculator = 0
+
 		for i := 1; i < gridSizeX-1; i++ {
 			// Count each square of the line
 			if grid[i][j] == FULL {
@@ -638,8 +640,10 @@ func ResolveLateralMovement() bool {
 func ResolveTurnMovement() bool {
 	// Input for turning the piece
 	if rl.IsKeyDown(rl.KeyUp) {
-		var aux gridSquare
-		var checker bool
+		var (
+			aux     gridSquare
+			checker bool
+		)
 
 		// Check all turning possibilities
 		if (grid[piecePosX+3][piecePosY] == MOVING) &&
