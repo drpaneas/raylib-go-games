@@ -23,16 +23,16 @@ Gamejams directory inclues some games games made in gamejams:
 
 Classics directory includes some classic games:
 
-- 🔜 Arkanoid
+- Arkanoid ✅
 - 🔜 Asteroids
 - 🔜 Asteroids (Survival Mode)
-- 🔜 Floppy
-- 🔜 Gold Fever
+- Floppy ✅
+- Gold Fever ✅
 - 🔜 Gorilas
 - 🔜 Missile Commander
 - 🔜 Pang
 - 🔜 Platformer
-- 🔜 Snake
+- Snake ✅
 - 🔜 Space Invaders
 - Tetris ✅
 
