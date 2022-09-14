@@ -1,3 +1,17 @@
+/*******************************************************************************************
+*
+*   raylib-go - classic game: arkanoid
+*   Transliterated to Go by Panagiotis Georgiadis
+*
+*   Sample game developed by Marc Palau and Ramon Santamaria
+*
+*   This game has been created using raylib-go -- Golang bindings for raylib
+*   raylib-go is licensed under an unmodified zlib/libpng license
+*
+*   Copyright (c) 2022 Panagiotis Georgiadis (drpaneas)
+*
+********************************************************************************************/
+
 package main
 
 import (
