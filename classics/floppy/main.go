@@ -63,7 +63,7 @@ var superfx bool
 // Program main entry point
 // ------------------------------------------------------------------------------------
 func main() {
-	InitWindow(screenWidth, screenHeight, "classic game: tetris")
+	InitWindow(screenWidth, screenHeight, "classic game: floppy")
 	InitGame()
 	SetTargetFPS(60)
 
