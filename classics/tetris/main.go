@@ -17,9 +17,8 @@ import (
 	"fmt"
 	"image/color"
 
-	"golang.org/x/exp/constraints"
-
 	rl "github.com/gen2brain/raylib-go/raylib"
+	"golang.org/x/exp/constraints"
 )
 
 // ----------------------------------------------------------------------------------
@@ -35,7 +34,7 @@ const (
 
 	// Deceleration: the higher the value, the slower the piece moves
 	// It is the number of frames that must pass before the piece moves down one cell
-	// NOTE: The higher the value, the slower the piece moves (60 frames --> 1 second)
+	// NOTE: The higher the value, the slower the piece moves (60 frames --> 1 second).
 	framesToWaitBeforeMoveDown        = 30
 	framesToWaitBeforeLateralMovement = 10
 )
@@ -58,7 +57,7 @@ const (
 // Global Variables Declaration
 // ------------------------------------------------------------------------------------
 
-// Resolution of the screen
+// Resolution of the screen. It's used to scale the game to fit the screen.
 const (
 	screenWidth  = 800
 	screenHeight = 450
@@ -96,7 +95,7 @@ var (
 	fadingColor rl.Color
 )
 
-// init initializes the game the first time
+// init initializes the game the first time.
 func init() {
 	reset()
 }
@@ -195,53 +194,58 @@ func UpdateGame() {
 		if !isPaused {
 			// 4. Check if a line has been completed, and if so, we have to delete it.
 			if !hasLineToDelete {
-				// 5. If there is no line to delete, then check if the current piece has reached the bottom of the grid.
+				// 5. If there is no line to delete, then check if a piece is active (falling down)
+				//    or it has reached the bottom of the grid or another piece.
 				if !isPieceFalling {
-					// 5a.1 A piece has reached the bottom of the grid, so we have to create a new one.
+					// 6a. A piece has reached the bottom of the grid, or has collided with another piece.
+					//    and it's no longer moving. So, we have to create a new one.
 					isPieceFalling = CreatePiece()
-					// 5a.2 In case the user had previously pressed the down key, we have to reset the fastFallMoveCounter
-					//     to avoid the piece to fall down too fast.
+
+					//  In case the user had previously pressed the down key, we have to reset the fastFallMoveCounter
+					//  to avoid the piece to fall down too fast.
 					fastFallMoveCounter = 0
 				} else {
-					// 5b.1 If the piece has not reached the bottom of the grid, then check for user input.
+					// 6b. The piece is active (currently falling down), so we check for:
+					//     user input, movement, collisions and game over.
 
-					// Counters update
+					// 6b.1 Counters update
+					//      they count they number of frames until the piece moves down, left, right or rotates)
 					fastFallMoveCounter++
 					verticalMoveCounter++
 					horizontalMoveCounter++
 					turnMovementCounter++
 
-					// 5b.2 Check if the user has pressed the left or right key to move the piece horizontally.
+					// 6b.2 Check if the user has pressed the left or right key to move the piece horizontally.
 					if rl.IsKeyPressed(rl.KeyLeft) || rl.IsKeyPressed(rl.KeyRight) {
 						horizontalMoveCounter = framesToWaitBeforeLateralMovement
 					}
 
-					// 5b.3 Check if the user has pressed the up key to turn the piece.
+					// 6b.3 Check if the user has pressed the up key to turn the piece.
 					if rl.IsKeyPressed(rl.KeyUp) {
 						turnMovementCounter = speedTurn
 					}
 
-					// 5b.4 Check if the user has pressed the down key to move the piece down faster.
+					// 6b.4 Check if the user has pressed the down key to move the piece down faster.
 					if rl.IsKeyDown(rl.KeyDown) && (fastFallMoveCounter >= fastFallAwaitCounter) {
 						verticalMoveCounter += framesToWaitBeforeMoveDown // Move the piece down faster
 					}
 
-					// 5b.5 Check if the number of frames (verticalMoveCounter) has reached the limit, and if so, move the piece down.
+					// 6b.5 Check if the number of frames (verticalMoveCounter) has reached the limit, and if so, move the piece down.
 					if verticalMoveCounter >= framesToWaitBeforeMoveDown {
 						verticalMoveCounter = 0 // Reset the counter
 
-						// 5b.5.1 Check if the piece has collided with the bottom of the grid or with another piece
+						// 6b.5.1 Check if the piece has collided with the bottom of the grid or with another piece
 						isDownCollided = checkCollisionY()
 						if isDownCollided {
 							stopMovingDown()
 						} else {
 							moveDown()
 						}
-						// 5b.5.2 Check if the player has completed a line, and if so, mark it (FADING) to be deleted in the next frame
+						// 6b.5.2 Check if the player has completed a line, and if so, mark it (FADING) to be deleted in the next frame
 						CheckCompletion(&hasLineToDelete)
 					}
 
-					// 5b.6 Move laterally at player's will
+					// 6b.6 Move laterally at player's will
 					if horizontalMoveCounter >= framesToWaitBeforeLateralMovement {
 						// Update the lateral movement and if success, reset the lateral counter
 						if !ResolveLateralMovement() {
@@ -249,7 +253,7 @@ func UpdateGame() {
 						}
 					}
 
-					// Turn the piece at player's will
+					// 6b.7 Turn the piece at player's will
 					if turnMovementCounter >= speedTurn {
 						// Update the turning movement and reset the turning counter
 						if ResolveTurnMovement() {
@@ -258,7 +262,7 @@ func UpdateGame() {
 					}
 				}
 
-				// If the piece has reached the top of the grid, then the game is over.
+				// 6b.8 If the piece has reached the top of the grid, then the game is over.
 				for j := 0; j < 2; j++ {
 					for i := 1; i < gridSizeX-1; i++ {
 						if grid[i][j] == FULL {
