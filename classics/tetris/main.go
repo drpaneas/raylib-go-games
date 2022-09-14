@@ -119,7 +119,6 @@ func main() {
 // reset all the required global variables to their original values.
 // It's called when the game starts, and when the player loses (gameover).
 func reset() {
-	fmt.Println("reset()")
 	score = 0
 	fadingColor = rl.Gray
 
